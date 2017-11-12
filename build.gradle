@@ -1,0 +1,51 @@
+group 'net.wohlfart'
+version '0.0.1-SNAPSHOT'
+
+// read libs and versions
+apply from: "gradle/dependencies.gradle"
+
+apply plugin: 'base'
+
+
+task mergeFrontendIntoBackend {
+    dependsOn("frontend:build")
+    doLast {
+        copy {
+            from file("${projectDir}/frontend/dist")
+            into file("${projectDir}/backend/src/main/resources/public")
+        }
+    }
+}
+
+assemble.dependsOn(mergeFrontendIntoBackend)
+
+task deletePublicDir {
+    doLast {
+        // public contains the frontend build copied over by the parent project
+        delete "${projectDir}/backend/src/main/resources/public"
+    }
+}
+
+clean.dependsOn(deletePublicDir)
+
+
+// download the api docs from swagger backend to generate frontend code
+// see: https://github.com/thebignet/swagger-codegen-gradle-plugin-example/blob/master/build.gradle
+task downloadApiDocs {
+    group 'API Generation'
+    description 'Download the API definition from the swagger endpoint'
+
+    doLast {
+        def swaggerGenInput = new File("${projectDir}/frontend/src/resources/api.json")
+        swaggerGenInput.parentFile.mkdirs()  // make sure the directory exists
+        if (!swaggerGenInput.exists()) {
+            outputs.println("delete existing api doc")
+        }
+
+        // create the new source file
+        new URL('http://localhost:8080/v2/api-docs').withInputStream {
+            stream -> swaggerGenInput.withOutputStream { it << stream }
+        }
+    }
+}
+
