@@ -1,0 +1,5 @@
+
+/frontend/src/generated/*
+/frontend/dist/*
+/backend/src/main/resources/public/*
+

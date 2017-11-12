@@ -33,6 +33,7 @@ dependencies {
     compile libraries.lombok
     compile libraries.fox_swagger
     compile libraries.fox_swagger_ui
+    compile libraries.starter_keycloak
 }
 
 // TODO: add manifest

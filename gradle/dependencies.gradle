@@ -20,5 +20,6 @@ ext.libraries = [
   jasypt             :      "com.github.ulisesbocchio:jasypt-spring-boot-starter:1.16",
   lombok             :      "org.projectlombok:lombok:1.16.12",
   starter_keycloak   :      "org.keycloak:keycloak-spring-boot-starter:${versions.keycloak}",
+  keycloak_bom       :      "org.keycloak.bom:keycloak-adapter-bom:${versions.keycloak}",
 ]
 
