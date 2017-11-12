@@ -1,0 +1,86 @@
+group 'net.wohlfart'
+version '0.0.1-SNAPSHOT'
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.bmuschko:gradle-docker-plugin:3.0.11'
+    }
+}
+
+apply plugin: com.bmuschko.gradle.docker.DockerRemoteApiPlugin
+
+// use fully qualified class name
+import com.bmuschko.gradle.docker.tasks.container.*
+import com.bmuschko.gradle.docker.tasks.image.*
+
+
+import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+
+task buildImage(type: DockerBuildImage) {
+    inputDir = file("${projectDir}/inputDir")
+    tag = 'spi/keycloak:latest'
+}
+
+task createContainer(type: DockerCreateContainer) {
+    dependsOn buildImage
+    targetImageId { buildImage.getImageId() }
+    portBindings = ['8001:8080']
+    env = [
+            "KEYCLOAK_USER=admin",
+            "KEYCLOAK_PASSWORD=admin",
+    ]
+}
+
+task startContainer(type: DockerStartContainer) {
+    dependsOn createContainer
+    targetContainerId { createContainer.getContainerId() }
+}
+
+task stopContainer(type: DockerStopContainer) {
+    targetContainerId { createContainer.getContainerId() }
+}
+
+/*
+
+quickrfef:
+
+list all locale images:
+  docker images
+  docker image ls
+
+list running containers:
+  docker ps
+  docker container ls
+
+latest running container:
+  docker ps -l
+
+stop a container
+  docker stop 4f107ff57cd3
+
+remove containers that are not running:
+  docker rm `docker ps -aq -f status=exited`
+
+list oimages:
+  docker images -a
+
+delete image:
+  docker rmi Image Image
+
+show and remove dangling
+    docker images -f dangling=true
+    docker rmi $(docker images -f dangling=true -q)
+
+docker stop container
+ docker stop 6095c9721b89
+ docker rm 6095c9721b89
+ docker rm tender_ride
+
+cleanup:
+docker system prune -a
+
+*/
