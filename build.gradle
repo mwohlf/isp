@@ -1,50 +1,72 @@
 group 'net.wohlfart'
 version '0.0.1-SNAPSHOT'
 
-// read libs and versions
+// reading common libs and versions
 apply from: "gradle/dependencies.gradle"
-
+// just te basics,
+// see: http://mrhaki.blogspot.de/2010/10/gradle-goodness-base-plugin-usage.html
+// we use assemble, clean steps
 apply plugin: 'base'
 
 
+
+//////  copy over the frontent build into the backend webapp
+
 task mergeFrontendIntoBackend {
-    dependsOn("frontend:build")
+    group 'assemble Project'
+    description 'copy the generated frontend project files into the backend, to prepare running the webapp'
+
+    dependsOn(":frontend:build")
     doLast {
+        assert new File("${project(':frontend').projectDir}/dist").canRead(), "directory 'dist' not found in project ':frontend'"
         copy {
-            from file("${projectDir}/frontend/dist")
-            into file("${projectDir}/backend/src/main/resources/public")
+            from new File("${project(':frontend').projectDir}/dist")
+            into new File("${project(':backend').projectDir}/src/main/resources/public")
         }
     }
 }
 
-assemble.dependsOn(mergeFrontendIntoBackend)
+assemble.dependsOn(mergeFrontendIntoBackend)  // execute on assemble step
+
+
+
+//////  cleanup, remove the frontend parts from the backend
 
 task deletePublicDir {
-    doLast {
-        // public contains the frontend build copied over by the parent project
-        delete "${projectDir}/backend/src/main/resources/public"
-    }
-}
-
-clean.dependsOn(deletePublicDir)
-
-
-// download the api docs from swagger backend to generate frontend code
-// see: https://github.com/thebignet/swagger-codegen-gradle-plugin-example/blob/master/build.gradle
-task downloadApiDocs {
-    group 'API Generation'
+    group 'cleanup'
     description 'Download the API definition from the swagger endpoint'
 
     doLast {
-        def swaggerGenInput = new File("${projectDir}/frontend/src/resources/api.json")
+        // public contains the frontend build copied over by the parent project
+        delete "${project(':backend').projectDir}/src/main/resources/public"
+    }
+}
+
+clean.dependsOn(deletePublicDir)  // execute on clean step
+
+
+
+//////  download api docs definition for frontend code generation, execute manually, the swagger backend endpoint must be running  for this
+
+task downloadApiDocs {
+    group 'API Generation'
+    description 'Download the api docs from swagger backend to generate frontend code'
+    // see: https://github.com/thebignet/swagger-codegen-gradle-plugin-example/blob/master/build.gradle
+
+    doLast {
+        def swaggerGenInput = new File("${project(':frontend').projectDir}/src/resources/api.json")
         swaggerGenInput.parentFile.mkdirs()  // make sure the directory exists
         if (!swaggerGenInput.exists()) {
-            outputs.println("delete existing api doc")
+            outputs.println("delete existing api doc, we are replacing with the file from swagger")
         }
 
         // create the new source file
-        new URL('http://localhost:8080/v2/api-docs').withInputStream {
-            stream -> swaggerGenInput.withOutputStream { it << stream }
+        try {
+            new URL('http://localhost:8080/v2/api-docs').withInputStream {
+                stream -> swaggerGenInput.withOutputStream { it << stream }
+            }
+        } catch (all) {
+            throw new GradleException("can't download api doc, make sure swagger is running")
         }
     }
 }
