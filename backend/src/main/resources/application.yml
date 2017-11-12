@@ -5,16 +5,17 @@ server:
 
 logging:
   level:
-    org.springframework: DEBUG
+    org.springframework: INFO
+    org.keycloak: DEBUG
 
 security:
   basic:
     enabled: false
 
 keycloak:
-  realm: demorealm
+  realm: isp
   auth-server-url: http://localhost:8001/auth
   ssl-required: external
-  resource: demoapp
-  credentials.secret: 11111111-1111-1111-1111-111111111111
+  resource: portal
+  credentials.secret: 387ef481-b296-4f56-8792-4cee4151d523
   use-resource-role-mappings: true

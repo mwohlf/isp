@@ -1,4 +1,4 @@
-package net.wohlfart.isp.auth;
+package net.wohlfart.isp.security;
 
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -8,11 +8,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class LoginFilter extends OncePerRequestFilter {
+public class AuthFilter extends OncePerRequestFilter {
 
     private final String prefix;
 
-    public LoginFilter(String prefix) {
+    public AuthFilter(String prefix) {
         this.prefix = prefix;
     }
 
