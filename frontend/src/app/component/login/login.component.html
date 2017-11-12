@@ -1,0 +1,30 @@
+
+<div class="page-center">
+
+    <h1>Login</h1>
+
+    <div>
+
+      <form [formGroup]="loginForm">
+
+        <div [ngClass]="{'error': loginForm.controls['username'].errors && !loginForm.controls['username'].pristine}">
+          <input type="text" formControlName="username" placeholder="Username" required>
+          <div *ngIf="loginForm.controls['username'].errors && !loginForm.controls['username'].pristine" class="error-msg">
+            <div [hidden]="!loginForm.controls['username'].errors.required">Email is required.</div>
+          </div>
+        </div>
+
+        <div [ngClass]="{'error': loginForm.controls['password'].errors && !loginForm.controls['password'].pristine}">
+          <input type="password" formControlName="password" placeholder="Password" required>
+          <div *ngIf="loginForm.controls['password'].errors && !loginForm.controls['password'].pristine" class="error-msg">
+            <div [hidden]="!loginForm.controls['password'].errors.required">Password is required.</div>
+          </div>
+        </div>
+
+        <button class="btn" [disabled]="loginForm.invalid" (click)="login()">Login</button>
+
+      </form>
+
+    </div>
+
+</div>

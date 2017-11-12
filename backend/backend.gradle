@@ -1,0 +1,57 @@
+
+buildscript {
+  repositories {
+    jcenter()
+    mavenCentral()
+    maven { url 'http://repo.spring.io/plugins-release' }
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+  }
+  dependencies {
+    classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.7.RELEASE")
+    classpath("io.swagger:swagger-codegen:2.3.0-SNAPSHOT")
+  }
+}
+
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+  jcenter()
+  mavenCentral()
+}
+
+configurations {
+  swagger
+}
+
+dependencies {
+  compile libraries.starter_web
+  compile libraries.starter_security
+  compile libraries.lombok
+  compile libraries.fox_swagger
+  compile libraries.fox_swagger_ui
+}
+
+jar {
+  baseName='mercury'
+  version='0.0.1'
+}
+
+task deleteOutDir {
+  doLast {
+    // out is created when the server was started in IDEA
+    delete "${projectDir}/out"
+  }
+}
+
+clean.dependsOn(deleteOutDir)
+
+test {
+    testLogging {
+        exceptionFormat = 'full'
+    }
+}
+
